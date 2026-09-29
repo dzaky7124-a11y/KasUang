@@ -1,0 +1,24 @@
+{
+  "name": "KasPintar AI - Pengelola Kas & Keuangan",
+  "short_name": "KasPintar AI",
+  "description": "Aplikasi pembukuan kas, pengeluaran & pemasukan dengan kecerdasan buatan (AI) dan cloud multiplatform.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0F172A",
+  "theme_color": "#10B981",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
