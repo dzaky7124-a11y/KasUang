@@ -245,3 +245,87 @@ async def restore_backup_json(
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=400, detail=f"Gagal memulihkan cadangan: {str(e)}")
+
+# ==========================================
+# MONITORING ONLY: VIEW ALL USER TRANSACTIONS & WALLETS
+# ==========================================
+@router.get("/all-transactions")
+def get_all_system_transactions(
+    limit: int = 50,
+    admin: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session)
+):
+    """Admin monitoring endpoint to view all transactions recorded across all users."""
+    txns = session.exec(select(Transaction).order_by(Transaction.date.desc(), Transaction.id.desc()).limit(limit)).all()
+    users_map = {u.id: u for u in session.exec(select(User)).all()}
+    wallets_map = {w.id: w for w in session.exec(select(Wallet)).all()}
+    cats_map = {c.id: c for c in session.exec(select(Category)).all()}
+
+    results = []
+    for t in txns:
+        u = users_map.get(t.user_id)
+        w = wallets_map.get(t.wallet_id)
+        c = cats_map.get(t.category_id)
+        results.append({
+            "id": t.id,
+            "user_name": u.name if u else "Pengguna",
+            "user_email": u.email if u else "-",
+            "wallet_name": w.name if w else "Kas",
+            "type": t.type,
+            "amount": t.amount,
+            "date": t.date,
+            "description": t.description,
+            "category_name": c.name if c else "-"
+        })
+    return {"transactions": results}
+
+# ==========================================
+# NOTIFICATIONS & BROADCASTS (ADMIN TO USERS)
+# ==========================================
+from app.models import Notification
+from app.auth import get_current_user
+
+class NotificationCreate(BaseModel):
+    title: str
+    message: str
+    type: str = "INFO"  # INFO, WARNING, SUCCESS
+
+@router.post("/notifications")
+def create_announcement(
+    req: NotificationCreate,
+    admin: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session)
+):
+    """Admin creates a broadcast notification for all users."""
+    notif = Notification(
+        title=req.title.strip(),
+        message=req.message.strip(),
+        type=req.type.upper(),
+        created_by_name=admin.name
+    )
+    session.add(notif)
+    session.commit()
+    session.refresh(notif)
+    return {"success": True, "message": "Pemberitahuan berhasil dikirim ke seluruh pengguna!", "notification": notif}
+
+@router.delete("/notifications/{notif_id}")
+def delete_announcement(
+    notif_id: int,
+    admin: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session)
+):
+    notif = session.get(Notification, notif_id)
+    if not notif:
+        raise HTTPException(status_code=404, detail="Pemberitahuan tidak ditemukan.")
+    session.delete(notif)
+    session.commit()
+    return {"success": True, "message": "Pemberitahuan berhasil dihapus."}
+
+# Publicly readable notifications for any logged in user
+@router.get("/public-notifications")
+def get_user_notifications(
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    notifs = session.exec(select(Notification).order_by(Notification.created_at.desc()).limit(20)).all()
+    return {"notifications": notifs}

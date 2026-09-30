@@ -170,33 +170,49 @@
 
         <!-- Navigation Menu -->
         <nav class="space-y-1">
+          <!-- Dashboard (Shared) -->
           <a href="#" data-nav="dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition bg-emerald-50 text-emerald-700">
             <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-            <span>Beranda</span>
+            <span class="user-only">Beranda Kas</span>
+            <span class="admin-only hidden">Pemantauan Sistem</span>
           </a>
-          <a href="#" data-nav="transactions" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-slate-600 hover:bg-slate-50">
+
+          <!-- User Only: Pencatatan Keuangan -->
+          <a href="#" data-nav="transactions" class="user-nav user-only flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-slate-600 hover:bg-slate-50">
             <i data-lucide="receipt" class="w-4 h-4"></i>
-            <span>Transaksi & Mutasi</span>
+            <span>Catat Transaksi</span>
           </a>
-          <a href="#" data-nav="excel-import" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-slate-600 hover:bg-slate-50">
+          <a href="#" data-nav="excel-import" class="user-nav user-only flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-slate-600 hover:bg-slate-50">
             <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-600"></i>
             <span class="flex-1">Impor Excel AI</span>
             <span class="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded uppercase">Smart</span>
           </a>
+          <a href="#" data-nav="wallets" class="user-nav user-only flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-slate-600 hover:bg-slate-50">
+            <i data-lucide="wallet" class="w-4 h-4"></i>
+            <span>Buku Kas / Dompet</span>
+          </a>
+          <a href="#" data-nav="user-notifications" class="user-nav user-only flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-slate-600 hover:bg-slate-50">
+            <i data-lucide="bell" class="w-4 h-4 text-amber-500"></i>
+            <span class="flex-1">Pemberitahuan</span>
+            <span id="user-unread-badge" class="hidden text-[9px] bg-red-500 text-white font-bold px-1.5 py-0.2 rounded-full">Baru</span>
+          </a>
+
+          <!-- Shared: Analisis Finansial AI (Both Admin & User) -->
           <a href="#" data-nav="ai-analytics" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-slate-600 hover:bg-slate-50">
             <i data-lucide="sparkles" class="w-4 h-4 text-purple-600"></i>
             <span class="flex-1">Analisis Finansial AI</span>
             <span class="text-[9px] bg-purple-100 text-purple-800 font-extrabold px-1.5 py-0.5 rounded uppercase">AI</span>
           </a>
-          <a href="#" data-nav="wallets" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-slate-600 hover:bg-slate-50">
-            <i data-lucide="wallet" class="w-4 h-4"></i>
-            <span>Buku Kas / Dompet</span>
+
+          <!-- Admin Only: Siaran Pengumuman & Kelola Pengguna/Cloud -->
+          <a href="#" data-nav="admin-broadcast" class="admin-nav admin-only hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-slate-600 hover:bg-slate-50">
+            <i data-lucide="megaphone" class="w-4 h-4 text-blue-600"></i>
+            <span class="flex-1">Beri Pemberitahuan</span>
+            <span class="text-[9px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded uppercase">Siaran</span>
           </a>
-          <!-- Admin Only Menu -->
-          <a href="#" data-nav="admin" class="admin-only flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-slate-600 hover:bg-slate-50">
-            <i data-lucide="shield" class="w-4 h-4 text-amber-600"></i>
-            <span class="flex-1">Panel Admin</span>
-            <span class="text-[9px] bg-amber-100 text-amber-800 font-extrabold px-1.5 py-0.5 rounded uppercase">Admin</span>
+          <a href="#" data-nav="admin" class="admin-nav admin-only hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-slate-600 hover:bg-slate-50">
+            <i data-lucide="shield-check" class="w-4 h-4 text-amber-600"></i>
+            <span class="flex-1">Kelola Pengguna & Cloud</span>
           </a>
         </nav>
       </div>
@@ -246,124 +262,270 @@
       <!-- VIEW 1: DASHBOARD -->
       <!-- ============================================== -->
       <section id="view-dashboard" class="view-section space-y-6">
-        <!-- Top Greeting & Action Banner -->
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+
+        <!-- ============================================== -->
+        <!-- A. USER DASHBOARD (Pencatatan & Arus Kas Pribadi) -->
+        <!-- ============================================== -->
+        <div id="user-dashboard-view" class="user-only space-y-6">
+          
+          <!-- Announcement Banner for Users (from Admin Broadcast) -->
+          <div id="user-announcement-banner" class="hidden p-4 rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border border-amber-200 text-amber-900 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-start sm:items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                <i data-lucide="megaphone" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span id="user-banner-type-badge" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-200 text-amber-900">Pemberitahuan</span>
+                  <p id="user-banner-title" class="text-xs font-bold text-amber-950">Pengumuman Penting Admin</p>
+                </div>
+                <p id="user-banner-message" class="text-xs text-amber-800 line-clamp-1 mt-0.5">Pesan dari administrator sistem.</p>
+              </div>
+            </div>
+            <button data-nav="user-notifications" class="text-xs font-bold text-amber-900 hover:text-amber-950 bg-white/90 px-3.5 py-1.5 rounded-xl border border-amber-200 shadow-xs flex items-center gap-1.5 self-start sm:self-auto hover:bg-white transition whitespace-nowrap">
+              <span>Buka Pemberitahuan</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <!-- Top Greeting & Action Banner -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h1 class="text-2xl font-black text-slate-900">Ringkasan Kas & Keuangan</h1>
+              <p class="text-xs text-slate-500 mt-0.5">Kelola arus kas secara real-time dan terhubung ke cloud.</p>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <button class="open-add-txn-modal flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md shadow-emerald-600/20 transition">
+                <i data-lucide="plus" class="w-4 h-4"></i> Catat Transaksi
+              </button>
+              <button data-nav="excel-import" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl font-bold text-xs shadow-sm transition">
+                <i data-lucide="upload-cloud" class="w-4 h-4 text-emerald-600"></i> Impor Excel
+              </button>
+            </div>
+          </div>
+
+          <!-- Metric Stat Cards -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Total Balance -->
+            <div class="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm col-span-2 sm:col-span-1">
+              <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider">Total Saldo Kas</span>
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <i data-lucide="wallet" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <p id="dash-total-balance" class="text-2xl font-extrabold text-slate-900">Rp 0</p>
+              <p class="text-[11px] text-slate-400 mt-1">Gabungan semua akun kas aktif</p>
+            </div>
+
+            <!-- Total Income -->
+            <div class="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider">Pemasukan</span>
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <p id="dash-total-income" class="text-2xl font-extrabold text-emerald-600">Rp 0</p>
+              <p class="text-[11px] text-slate-400 mt-1">Total arus kas masuk</p>
+            </div>
+
+            <!-- Total Expense -->
+            <div class="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider">Pengeluaran</span>
+                <div class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
+                  <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <p id="dash-total-expense" class="text-2xl font-extrabold text-red-600">Rp 0</p>
+              <p class="text-[11px] text-slate-400 mt-1">Total arus kas keluar</p>
+            </div>
+
+            <!-- Net Cashflow -->
+            <div class="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm col-span-2 sm:col-span-1">
+              <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider">Arus Kas Bersih</span>
+                <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <i data-lucide="scale" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <p id="dash-net-cashflow" class="text-2xl font-extrabold text-slate-900">Rp 0</p>
+              <p class="text-[11px] text-slate-400 mt-1">Pemasukan - Pengeluaran</p>
+            </div>
+          </div>
+
+          <!-- Wallets Grid -->
           <div>
-            <h1 class="text-2xl font-black text-slate-900">Ringkasan Kas & Keuangan</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Kelola arus kas secara real-time dan terhubung ke cloud.</p>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-bold text-slate-800">Daftar Buku Kas / Dompet</h3>
+              <button id="open-add-wallet-btn" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Tambah Akun Kas
+              </button>
+            </div>
+            <div id="wallets-list-container" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <!-- Rendered by App.renderWallets -->
+            </div>
           </div>
-          <div class="flex items-center gap-2 w-full sm:w-auto">
-            <button class="open-add-txn-modal flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md shadow-emerald-600/20 transition">
-              <i data-lucide="plus" class="w-4 h-4"></i> Catat Transaksi
-            </button>
-            <button data-nav="excel-import" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl font-bold text-xs shadow-sm transition">
-              <i data-lucide="upload-cloud" class="w-4 h-4 text-emerald-600"></i> Impor Excel
-            </button>
-          </div>
-        </div>
 
-        <!-- Metric Stat Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <!-- Total Balance -->
-          <div class="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm col-span-2 sm:col-span-1">
-            <div class="flex items-center justify-between text-slate-400 mb-2">
-              <span class="text-xs font-semibold uppercase tracking-wider">Total Saldo Kas</span>
-              <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <i data-lucide="wallet" class="w-4 h-4"></i>
+          <!-- Financial Visual Charts -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Trends Bar Chart (2 cols) -->
+            <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-600"></i> Tren Pemasukan vs Pengeluaran
+                </h3>
+                <span class="text-xs text-slate-400">Periode Aktif</span>
+              </div>
+              <div class="h-64">
+                <canvas id="chart-cashflow-trends"></canvas>
               </div>
             </div>
-            <p id="dash-total-balance" class="text-2xl font-extrabold text-slate-900">Rp 0</p>
-            <p class="text-[11px] text-slate-400 mt-1">Gabungan semua akun kas aktif</p>
-          </div>
 
-          <!-- Total Income -->
-          <div class="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm">
-            <div class="flex items-center justify-between text-slate-400 mb-2">
-              <span class="text-xs font-semibold uppercase tracking-wider">Pemasukan</span>
-              <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+            <!-- Category Doughnut Chart (1 col) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <i data-lucide="pie-chart" class="w-4 h-4 text-purple-600"></i> Pos Pengeluaran
+                </h3>
+              </div>
+              <div class="h-64">
+                <canvas id="chart-expense-categories"></canvas>
               </div>
             </div>
-            <p id="dash-total-income" class="text-2xl font-extrabold text-emerald-600">Rp 0</p>
-            <p class="text-[11px] text-slate-400 mt-1">Total arus kas masuk</p>
           </div>
 
-          <!-- Total Expense -->
-          <div class="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm">
-            <div class="flex items-center justify-between text-slate-400 mb-2">
-              <span class="text-xs font-semibold uppercase tracking-wider">Pengeluaran</span>
-              <div class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
-                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-              </div>
-            </div>
-            <p id="dash-total-expense" class="text-2xl font-extrabold text-red-600">Rp 0</p>
-            <p class="text-[11px] text-slate-400 mt-1">Total arus kas keluar</p>
-          </div>
-
-          <!-- Net Cashflow -->
-          <div class="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm col-span-2 sm:col-span-1">
-            <div class="flex items-center justify-between text-slate-400 mb-2">
-              <span class="text-xs font-semibold uppercase tracking-wider">Arus Kas Bersih</span>
-              <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                <i data-lucide="scale" class="w-4 h-4"></i>
-              </div>
-            </div>
-            <p id="dash-net-cashflow" class="text-2xl font-extrabold text-slate-900">Rp 0</p>
-            <p class="text-[11px] text-slate-400 mt-1">Pemasukan - Pengeluaran</p>
-          </div>
-        </div>
-
-        <!-- Wallets Grid -->
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-bold text-slate-800">Daftar Buku Kas / Dompet</h3>
-            <button id="open-add-wallet-btn" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
-              <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Tambah Akun Kas
-            </button>
-          </div>
-          <div id="wallets-list-container" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <!-- Rendered by App.renderWallets -->
-          </div>
-        </div>
-
-        <!-- Financial Visual Charts -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Trends Bar Chart (2 cols) -->
-          <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-600"></i> Tren Pemasukan vs Pengeluaran
-              </h3>
-              <span class="text-xs text-slate-400">Periode Aktif</span>
-            </div>
-            <div class="h-64">
-              <canvas id="chart-cashflow-trends"></canvas>
-            </div>
-          </div>
-
-          <!-- Category Doughnut Chart (1 col) -->
+          <!-- Recent Transactions List -->
           <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <i data-lucide="pie-chart" class="w-4 h-4 text-purple-600"></i> Pos Pengeluaran
-              </h3>
+              <h3 class="text-sm font-bold text-slate-800">Transaksi Terbaru</h3>
+              <a href="#" data-nav="transactions" class="text-xs font-semibold text-emerald-600 hover:underline">Lihat Semua</a>
             </div>
-            <div class="h-64">
-              <canvas id="chart-expense-categories"></canvas>
+            <div id="dash-recent-transactions" class="space-y-2">
+              <!-- Rendered by App.renderRecentTransactions -->
             </div>
           </div>
         </div>
 
-        <!-- Recent Transactions List -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-bold text-slate-800">Transaksi Terbaru</h3>
-            <a href="#" data-nav="transactions" class="text-xs font-semibold text-emerald-600 hover:underline">Lihat Semua</a>
+        <!-- ============================================== -->
+        <!-- B. ADMIN DASHBOARD (Khusus Pemantauan & Broadcast) -->
+        <!-- ============================================== -->
+        <div id="admin-dashboard-view" class="admin-only hidden space-y-6">
+          
+          <!-- Top Greeting & Action Banner for Admin -->
+          <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 rounded-3xl text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold mb-2">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-400"></i> Mode Pemantauan Administrator (Bebas Input Kas)
+              </div>
+              <h1 class="text-2xl font-black tracking-tight">Panel Pemantauan Kas Global</h1>
+              <p class="text-xs text-slate-300 mt-1 max-w-xl">
+                Administrator hanya memantau aktivitas transaksi seluruh anggota secara transparan dan menyiarkan pengumuman/instruksi penting ke seluruh pengguna.
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button data-nav="admin-broadcast" class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-md shadow-blue-600/30 transition">
+                <i data-lucide="megaphone" class="w-4 h-4"></i> Beri Pemberitahuan
+              </button>
+              <button data-nav="admin" class="flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-xs backdrop-blur-sm transition border border-white/20">
+                <i data-lucide="users" class="w-4 h-4 text-amber-400"></i> Kelola Pengguna
+              </button>
+              <button data-nav="ai-analytics" class="flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-xs shadow-md shadow-purple-600/30 transition">
+                <i data-lucide="sparkles" class="w-4 h-4"></i> Analisis AI Global
+              </button>
+            </div>
           </div>
-          <div id="dash-recent-transactions" class="space-y-2">
-            <!-- Rendered by App.renderRecentTransactions -->
+
+          <!-- System Stat Cards for Admin -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider">Pengguna Aktif</span>
+                <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                  <i data-lucide="users" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <p id="admin-dash-users" class="text-2xl font-extrabold text-slate-900">0</p>
+              <p class="text-[11px] text-slate-400 mt-1">Total akun anggota</p>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider">Total Akun Kas</span>
+                <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <i data-lucide="wallet-cards" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <p id="admin-dash-wallets" class="text-2xl font-extrabold text-slate-900">0</p>
+              <p class="text-[11px] text-slate-400 mt-1">Dompet kas terdaftar</p>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider">Total Transaksi</span>
+                <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                  <i data-lucide="receipt" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <p id="admin-dash-txns" class="text-2xl font-extrabold text-slate-900">0</p>
+              <p class="text-[11px] text-slate-400 mt-1">Mutasi kas seluruh user</p>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider">Volume Kas Tercatat</span>
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <i data-lucide="coins" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <p id="admin-dash-volume" class="text-2xl font-extrabold text-emerald-600">Rp 0</p>
+              <p class="text-[11px] text-slate-400 mt-1">Akumulasi seluruh mutasi</p>
+            </div>
           </div>
+
+          <!-- All Transactions Live Monitoring Feed -->
+          <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <i data-lucide="monitor" class="w-4 h-4 text-indigo-600"></i> Pemantauan Transaksi Seluruh Pengguna
+                </h3>
+                <p id="admin-monitoring-count" class="text-xs text-slate-400 mt-0.5">Memuat riwayat transaksi global...</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="relative">
+                  <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400"></i>
+                  <input id="admin-monitoring-search" type="text" placeholder="Cari nama, kas, keterangan..." class="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <button id="admin-monitoring-refresh-btn" class="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600" title="Segarkan Data">
+                  <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <th class="px-4 py-3">Tanggal</th>
+                    <th class="px-4 py-3">Pengguna</th>
+                    <th class="px-4 py-3">Buku Kas</th>
+                    <th class="px-4 py-3">Kategori</th>
+                    <th class="px-4 py-3">Keterangan</th>
+                    <th class="px-4 py-3">Tipe</th>
+                    <th class="px-4 py-3 text-right">Nominal</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-monitoring-tbody">
+                  <!-- Rendered by App.renderAdminTransactions -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
+
       </section>
 
       <!-- ============================================== -->

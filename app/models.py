@@ -64,3 +64,12 @@ class SystemConfig(SQLModel, table=True):
     value: str
     description: Optional[str] = None
     updated_at: datetime = Field(default_factory=get_utc_now)
+
+class Notification(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str
+    message: str
+    type: str = Field(default="INFO")  # INFO, WARNING, SUCCESS
+    created_by_name: str = Field(default="Administrator")
+    created_at: datetime = Field(default_factory=get_utc_now)
+

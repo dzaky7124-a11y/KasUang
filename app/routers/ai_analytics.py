@@ -20,17 +20,19 @@ class ChatRequest(BaseModel):
     history: List[ChatMessage] = []
 
 def build_financial_context(current_user: User, session: Session) -> Dict[str, Any]:
-    wallets = session.exec(select(Wallet).where(Wallet.user_id == current_user.id, Wallet.is_active == True)).all()
+    if current_user.role == "ADMIN":
+        wallets = session.exec(select(Wallet).where(Wallet.is_active == True)).all()
+        txns = session.exec(select(Transaction).order_by(Transaction.date.desc())).all()
+    else:
+        wallets = session.exec(select(Wallet).where(Wallet.user_id == current_user.id, Wallet.is_active == True)).all()
+        txns = session.exec(select(Transaction).where(Transaction.user_id == current_user.id).order_by(Transaction.date.desc())).all()
+
     wallet_summaries = []
     total_balance = 0.0
     for w in wallets:
         bal = calculate_wallet_balance(w, session)
         total_balance += bal
         wallet_summaries.append({"name": w.name, "type": w.type, "balance": bal})
-
-    txns = session.exec(
-        select(Transaction).where(Transaction.user_id == current_user.id).order_by(Transaction.date.desc())
-    ).all()
 
     total_income = sum(t.amount for t in txns if t.type == "INCOME")
     total_expense = sum(t.amount for t in txns if t.type == "EXPENSE")

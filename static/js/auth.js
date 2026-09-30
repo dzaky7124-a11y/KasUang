@@ -119,14 +119,19 @@ const Auth = {
         }`;
       });
 
-      // Show or hide admin links
-      adminNavLinks.forEach((el) => {
-        if (this.currentUser.role === "ADMIN") {
-          el.classList.remove("hidden");
-        } else {
-          el.classList.add("hidden");
-        }
+      // Show or hide role-specific elements
+      const isAdmin = this.currentUser.role === "ADMIN";
+      document.querySelectorAll(".admin-only, .admin-nav").forEach((el) => {
+        el.classList.toggle("hidden", !isAdmin);
       });
+      document.querySelectorAll(".user-only, .user-nav").forEach((el) => {
+        el.classList.toggle("hidden", isAdmin);
+      });
+
+      // Switch default view based on role if on unpermitted page
+      if (isAdmin && (App.currentView === "transactions" || App.currentView === "excel-import" || App.currentView === "wallets")) {
+        App.switchView("dashboard");
+      }
     } else {
       authContainer.classList.remove("hidden");
       appContainer.classList.add("hidden");
